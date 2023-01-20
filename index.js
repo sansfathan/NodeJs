@@ -3,6 +3,7 @@ const express = require("express");
 
 const dayjs = require("dayjs");
 const app = express();
+const { sequelize } = require("./src/models");
 // const bodyParse = require("body-parser")
 require("dotenv").config();
 const port = process.env.PORT || 8087;
@@ -27,6 +28,13 @@ app.use(console1);
 
 app.use(router);
 app.use(notfound);
-app.listen(port, () =>
-  console.log(`Server berjalan di http://localhost:${port}`)
-);
+app.listen(port, async () => {
+  try {
+    await sequelize.authenticate();
+    console.log(`Server berjalan di http://localhost:${port}`);
+
+    console.log("Connection has been established successfully.");
+  } catch (error) {
+    console.error("Unable to connect to the database:", error);
+  }
+});
