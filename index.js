@@ -19,12 +19,14 @@ const example = require("./example.js");
 const moment = require("moment/moment.js");
 const authMiddleware = require("./src/middleware/authMiddleware");
 const log = require("./src/middleware/log");
+const paginationMiddleware = require("./src/middleware/pageSizeMiddleware");
 // app.use(autMiddleware)
 
 app.use(express.json());
 app.use(express.static("src/storage/uploads"));
 app.use(console2);
 app.use(console1);
+app.use(paginationMiddleware)
 
 app.use(router);
 app.use(notfound);
@@ -35,6 +37,6 @@ app.listen(port, async () => {
 
     console.log("Connection has been established successfully.");
   } catch (error) {
-    console.error("Unable to connect to the database:", error);
+    console.error("🚫 ➤➤➤ Unable to connect to the database:", error);
   }
 });
