@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const materi = require("../models/materi");
 
 const materiModel = require("../models").materi;
@@ -148,6 +149,7 @@ async function getMateriSiswa(req, res) {
       sortBy = "id",
       orderBy = "ASC",
     } = req.query;
+    
 
     const materi = await materiModel.findAndCountAll({
       attributes: {
@@ -186,9 +188,10 @@ async function getMateriSiswa(req, res) {
         pageSize: pageSize,
         totalData: materi.count,
       },
-      data: materi.rows,
+      data: materi,
     });
   } catch (err) {
+    console.log(err)
     res.status(403).json({
       status: "404 Not Found",
       msg: "Ada Kesalahan",
@@ -197,6 +200,68 @@ async function getMateriSiswa(req, res) {
   }
 }
 
+// async function getMateriSiswa(req, res) {
+//   const {
+//     keyword,
+//     page,
+//     pageSize,
+    
+//     offset,
+//     sortBy = "id",
+//     orderBy = "asc",
+//   } = req.query;
+//   try {
+//     const materi = await materiModel.findAndCountAll({
+//       attributes: {
+//         exclude: ["createAt", "updateAt"],
+//       },
+//       // where: {
+//       //   [Op.or]: [
+//       //     {
+//       //       title: {
+//       //         [Op.substring] : keyword,
+//       //       },
+//       //     },
+//       //     {
+//       //       description: {
+//       //         [Op.substring] : keyword,
+//       //       },
+//       //     },
+//       //   ],
+//       //   year: {
+//       //     [Op.gte] : year,
+//       //   },
+//       // },
+//       order: [[sortBy, orderBy]],
+//       limit: pageSize,
+//       offset: offset, // offset bukanlah page
+//     });
+//     res.json({
+//       status: "Success",
+//       message: "Data materi Ditemukan",
+//       pageNation: {
+//         currentPage: page,
+//         pageSize: pageSize,
+//         totalData: materi.count,
+//       },
+//       data: materi.rows,
+
+//       query: {
+//         // title,
+//         // dari_tahun,
+//         // sampai_tahun,
+//         page,
+//         pageSize,
+//       },
+//     });
+//   } catch (err) {
+//     console.log("ada kesalahan masbro =>", err);
+//     res.status(403).json({
+//       status: "Fail",
+//       maessage: "Terjadi Kesalahan",
+//     });
+//   }
+// }
 async function getMateriGuru(req, res) {
   try {
     let {
@@ -207,6 +272,7 @@ async function getMateriGuru(req, res) {
       sortBy = "id",
       orderBy = "ASC",
     } = req.query;
+    
 
     if (materiMilik == "saya") {
       const materi = await materiModel.findAndCountAll({
@@ -237,7 +303,22 @@ async function getMateriGuru(req, res) {
         data: materi.rows,
       });
     } else {
-      const materi = await materiModel.findAndCountAll();
+      const materi = await materiModel.findAndCountAll({
+        attributes: {
+          exclude: ["createdAt", "updatedAt"],
+        },
+        where: {
+          [Op.or]: [
+            {
+              userId: req.id,
+            },
+          ],
+        },
+
+        limit: pageSize,
+        offset: offset,
+        order: [[sortBy, orderBy]],
+      });
 
       res.json({
         status: 200,
