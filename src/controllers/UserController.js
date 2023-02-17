@@ -272,6 +272,63 @@ async function updatePassword(req, res) {
   }
 }
 
+const index = async (req, res) => {
+  try {
+    let { keyword, page, pageSize, orderBy, sortBy, pageActive } = req.query;
+    const users = await UserModel.findAndCountAll({
+      attributes: ["id", ["name", "nama"], "status", "jenisKelamin"],
+      where: {
+        ...(keyword !== undefined && {
+          [Op.or]: [
+            {
+              name: {
+                [Op.like]: `%${keyword}%`,
+              },
+            },
+            {
+              email: {
+                [Op.like]: `%${keyword}%`,
+              },
+            },
+            {
+              jenisKelamin: {
+                [Op.like]: `%${keyword}%`,
+              },
+            },
+          ],
+        }),
+      },
+      order: [[sortBy,orderBy]],
+      offset: page,
+      limit:pageSize
+    });
+    console.log('========== page =============', page);
+    console.log('========= pageSize ===============', pageSize);
+    return res.json({
+      status: "Success",
+      msg: "Daftar ser Ditemukan",
+      data: users,
+      pagination: {
+        page: pageActive,
+        nextPage: page + 1,
+        previousPage: pageSize + 1,
+        pageSize: pageSize,
+        jumlah: users.rows.length,
+        total: users.count
+      }
+    });
+
+  } catch (error) {
+    console.log("err", err);
+    res.status(403).json({
+      status: "error 403",
+      msg: "ada error",
+      err: err,
+      // token: currentToken
+    });
+  }
+};
+
 module.exports = {
   updateUser,
   getListUser,

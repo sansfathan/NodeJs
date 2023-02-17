@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const sendEmailHandle = require("../mail");
 const crypto = require("crypto");
 const dayjs = require("dayjs");
+const user = require("../models/user");
 require("dotenv").config();
 
 async function register(req, res) {
@@ -22,6 +23,7 @@ async function register(req, res) {
     res.json({
       status: "Success",
       msg: "Register Berhasil",
+      data:user,
     });
   } catch (err) {
     res.status(403).json({
@@ -87,6 +89,7 @@ async function login(req, res) {
     res.status(403).json({
       status: "Fail",
       msg: "Ada Kesalahan",
+      err
     });
   }
 }
@@ -219,6 +222,4 @@ async function resetPassword(req, res) {
   }
 }
 
-
-
-module.exports = { register, login, forgotPassword, resetPassword, };
+module.exports = { register, login, forgotPassword, resetPassword };
